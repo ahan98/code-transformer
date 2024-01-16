@@ -95,10 +95,17 @@ def next_sibling_shortest_paths(tree_edges):
     sibling_edges = next_sibling_edges(tree_edges).numpy()
     G_siblings = nx.from_edgelist(sibling_edges, create_using=nx.DiGraph)
     sps = list(nx.all_pairs_dijkstra_path_length(G_siblings))
-    sibling_sp_edgelist = torch.tensor([(from_node, to_node, dist)
-                                        for from_node, dct in sps
-                                        for to_node, dist in dct.items()],
-                                       dtype=torch.long)
+
+    ## CHANGED
+    weights = [(from_node, to_node, dist)
+               for from_node, dct in sps
+               for to_node, dist in dct.items()]
+    # print(weights)
+    # print(type(weights[0][0]))
+    # sibling_sp_edgelist = torch.tensor(weights, dtype=torch.long)
+    sibling_sp_edgelist = torch.tensor(weights).to(torch.long)
+    ## CHANGED
+
     sibling_sp_edgelist = sibling_sp_edgelist[sibling_sp_edgelist[:, 2] > 0]
 
     return sibling_sp_edgelist
